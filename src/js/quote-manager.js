@@ -106,6 +106,15 @@ export class QuoteManager {
   }
 
   /**
+   * Returns the Quote object matching the given ID, or null if not found.
+   * @param {string} id
+   * @returns {{id: string, text: string, author: string, category?: string}|null}
+   */
+  getQuoteById(id) {
+    return this._quotes.find((q) => q.id === id) || null;
+  }
+
+  /**
    * Returns an array of Quote objects currently in favorites.
    * @returns {Array<{id: string, text: string, author: string, category?: string}>}
    */

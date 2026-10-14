@@ -71,3 +71,69 @@ test('Integration: End-to-End Quote Browsing & LocalStorage Persistence Across R
   );
   assert.deepEqual(session3Storage.getFavorites(), [], 'Favorites collection should be empty');
 });
+
+test('Integration: In-Session Refavoriting — unfavorited row is retained until reload', async (t) => {
+  const sharedBrowserStorage = new MockBrowserStorage();
+
+  // --- Setup: favorite two quotes ---
+  const sessionStorage = new StorageService(sharedBrowserStorage);
+  const sessionManager = new QuoteManager(quotes, sessionStorage);
+
+  const quoteA = quotes[0];
+  const quoteB = quotes[1];
+
+  sessionManager.toggleFavorite(quoteA.id); // favorite A
+  sessionManager.toggleFavorite(quoteB.id); // favorite B
+
+  assert.equal(sessionManager.isFavorited(quoteA.id), true, 'quoteA is favorited');
+  assert.equal(sessionManager.isFavorited(quoteB.id), true, 'quoteB is favorited');
+
+  // Simulate sessionFavorites Set as AppController would maintain it
+  const sessionFavorites = new Set(sessionStorage.getFavorites());
+  assert.ok(sessionFavorites.has(quoteA.id), 'sessionFavorites contains quoteA');
+  assert.ok(sessionFavorites.has(quoteB.id), 'sessionFavorites contains quoteB');
+
+  // --- Unfavorite quoteA from the list (as renderFavoritesList "Remove" handler does) ---
+  sessionManager.toggleFavorite(quoteA.id); // removes from storage + _favorites
+  // sessionFavorites is NOT modified (in-session retention)
+
+  assert.equal(sessionManager.isFavorited(quoteA.id), false, 'quoteA is no longer favorited in QuoteManager');
+  assert.ok(sessionFavorites.has(quoteA.id), 'sessionFavorites still contains quoteA (row stays visible)');
+  assert.equal(sessionManager.isFavorited(quoteB.id), true, 'quoteB remains favorited');
+
+  // Verify storage no longer contains quoteA
+  const storedAfterRemove = sessionStorage.getFavorites();
+  assert.ok(!storedAfterRemove.includes(quoteA.id), 'localStorage no longer contains quoteA');
+  assert.ok(storedAfterRemove.includes(quoteB.id), 'localStorage still contains quoteB');
+
+  // --- Refavorite quoteA (as "Refavorite" button handler does) ---
+  sessionManager.toggleFavorite(quoteA.id); // re-adds to storage + _favorites
+
+  assert.equal(sessionManager.isFavorited(quoteA.id), true, 'quoteA is favorited again after refavoriting');
+  const storedAfterRefav = sessionStorage.getFavorites();
+  assert.ok(storedAfterRefav.includes(quoteA.id), 'localStorage contains quoteA again after refavoriting');
+
+  // --- Simulate reload: new session reads only stored favorites ---
+  const reloadStorage = new StorageService(sharedBrowserStorage);
+  const reloadManager = new QuoteManager(quotes, reloadStorage);
+  const reloadSessionFavorites = new Set(reloadStorage.getFavorites());
+
+  assert.ok(reloadSessionFavorites.has(quoteA.id), 'After reload, quoteA (refavorited) persists');
+  assert.ok(reloadSessionFavorites.has(quoteB.id), 'After reload, quoteB persists');
+
+  // --- Now test purge on reload: unfavorite quoteA and do NOT refavorite ---
+  const purgeStorage = new StorageService(sharedBrowserStorage);
+  const purgeManager = new QuoteManager(quotes, purgeStorage);
+  const purgeSessionFavorites = new Set(purgeStorage.getFavorites());
+
+  purgeManager.toggleFavorite(quoteA.id); // unfavorite, no refavorite
+  // purgeSessionFavorites still has quoteA (session retention in-memory only)
+  assert.ok(purgeSessionFavorites.has(quoteA.id), 'Session set retains quoteA during session');
+  assert.equal(purgeManager.isFavorited(quoteA.id), false, 'QuoteManager no longer marks quoteA as favorited');
+
+  // Next reload sees clean state
+  const nextReloadStorage = new StorageService(sharedBrowserStorage);
+  const nextReloadSessionFavorites = new Set(nextReloadStorage.getFavorites());
+  assert.ok(!nextReloadSessionFavorites.has(quoteA.id), 'After reload without refavoriting, quoteA is gone');
+  assert.ok(nextReloadSessionFavorites.has(quoteB.id), 'quoteB still persists unaffected');
+});

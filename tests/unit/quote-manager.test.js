@@ -140,3 +140,26 @@ test('QuoteManager - User Story 4: View and retrieve saved favorite quotes', asy
     assert.equal(favs[0].author, sampleQuotes.find(q => q.id === favs[0].id).author);
   });
 });
+
+test('QuoteManager - User Story 4: getQuoteById() lookup', async (t) => {
+  await t.test('returns the correct Quote object for a valid ID', () => {
+    const manager = new QuoteManager(sampleQuotes);
+    const result = manager.getQuoteById('quote-001');
+    assert.ok(result, 'Should return a Quote object for a known ID');
+    assert.equal(result.id, 'quote-001', 'Returned quote must have the requested ID');
+    assert.equal(typeof result.text, 'string', 'Quote must have text');
+    assert.equal(typeof result.author, 'string', 'Quote must have author');
+  });
+
+  await t.test('returns null for an unknown ID', () => {
+    const manager = new QuoteManager(sampleQuotes);
+    const result = manager.getQuoteById('nonexistent-id-xyz');
+    assert.equal(result, null, 'Should return null for an ID not in the collection');
+  });
+
+  await t.test('returns null when called on an empty collection', () => {
+    const manager = new QuoteManager([]);
+    const result = manager.getQuoteById('quote-001');
+    assert.equal(result, null, 'Should return null when collection is empty');
+  });
+});

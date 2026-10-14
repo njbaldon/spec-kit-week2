@@ -10,6 +10,16 @@ export class AppController {
     this.storage = new StorageService();
     this.quoteManager = new QuoteManager(quotes, this.storage);
 
+    /**
+     * sessionFavorites tracks every quote ID shown in the favorites panel for the current
+     * session. It is initialized from storage (currently-favorited IDs) and is grown whenever
+     * the user favorites a new quote. IDs are NEVER removed from this Set during the session —
+     * they only disappear on the next page load — which is what keeps unfavorited rows visible
+     * in the panel so the user can refavorite accidental removals.
+     * @type {Set<string>}
+     */
+    this.sessionFavorites = new Set(this.storage.getFavorites());
+
     // Cache DOM references
     this.elements = {
       quoteCard: document.getElementById('quote-card'),
@@ -62,9 +72,18 @@ export class AppController {
 
   /**
    * Toggles the favorite status for the current quote and synchronizes UI.
+   * When a quote is newly favorited, its ID is added to sessionFavorites so it
+   * appears in the favorites panel for the rest of this session.
    */
   handleToggleFavorite() {
-    this.quoteManager.toggleFavorite();
+    const current = this.quoteManager.getCurrentQuote();
+    const isNowFavorited = this.quoteManager.toggleFavorite();
+
+    if (isNowFavorited && current) {
+      // Add to session set so it shows up in (or stays in) the favorites panel
+      this.sessionFavorites.add(current.id);
+    }
+
     this.checkStorageWarning();
     this.renderFavoriteButtonState();
     this.updateFavoritesButtonLabel();
@@ -89,7 +108,7 @@ export class AppController {
   }
 
   /**
-   * Updates favorites button label with count.
+   * Updates favorites button label with count of truly-persisted favorites.
    */
   updateFavoritesButtonLabel() {
     if (!this.elements.btnViewFavorites) return;
@@ -138,14 +157,20 @@ export class AppController {
 
   /**
    * Renders the saved favorites list into the favorites panel.
+   *
+   * Iterates over sessionFavorites (not just currently-favorited quotes) so that
+   * quotes unfavorited during this session are still displayed. Each row renders
+   * differently based on whether the quote is still actively favorited:
+   *
+   *   - Still favorited → "✕ Remove" button (removes from storage, keeps row with .is-unfavorited)
+   *   - Unfavorited this session → "+ Refavorite" button (re-adds to storage, removes .is-unfavorited)
    */
   renderFavoritesList() {
     if (!this.elements.favoritesList) return;
 
-    const favoriteQuotes = this.quoteManager.getFavoriteQuotes();
     this.elements.favoritesList.innerHTML = '';
 
-    if (favoriteQuotes.length === 0) {
+    if (this.sessionFavorites.size === 0) {
       const emptyLi = document.createElement('li');
       emptyLi.className = 'favorites-empty';
       emptyLi.textContent = 'You have not favorited any quotes yet. Click the heart icon on any quote to save it!';
@@ -153,16 +178,21 @@ export class AppController {
       return;
     }
 
-    for (const quote of favoriteQuotes) {
+    for (const id of this.sessionFavorites) {
+      const quote = this.quoteManager.getQuoteById(id);
+      if (!quote) continue; // Guard against stale IDs not in the built-in collection
+
+      const isStillFavorited = this.quoteManager.isFavorited(id);
+
       const li = document.createElement('li');
-      li.className = 'favorite-item';
+      li.className = 'favorite-item' + (isStillFavorited ? '' : ' is-unfavorited');
 
       const contentDiv = document.createElement('div');
       contentDiv.className = 'favorite-item-content';
 
       const quoteP = document.createElement('p');
       quoteP.className = 'favorite-item-text';
-      quoteP.textContent = `“${quote.text}”`;
+      quoteP.textContent = `"${quote.text}"`;
 
       const authorSpan = document.createElement('span');
       authorSpan.className = 'favorite-item-author';
@@ -171,21 +201,37 @@ export class AppController {
       contentDiv.appendChild(quoteP);
       contentDiv.appendChild(authorSpan);
 
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'btn-remove-fav';
-      removeBtn.type = 'button';
-      removeBtn.setAttribute('aria-label', `Remove "${quote.text}" from favorites`);
-      removeBtn.textContent = '✕ Remove';
+      const actionBtn = document.createElement('button');
+      actionBtn.type = 'button';
 
-      removeBtn.addEventListener('click', () => {
-        this.quoteManager.toggleFavorite(quote.id);
-        this.renderFavoritesList();
-        this.updateFavoritesButtonLabel();
-        this.renderFavoriteButtonState();
-      });
+      if (isStillFavorited) {
+        // ✕ Remove: unfavorites from storage but keeps row in session list
+        actionBtn.className = 'btn-remove-fav';
+        actionBtn.setAttribute('aria-label', `Remove "${quote.text}" from favorites`);
+        actionBtn.textContent = '✕ Remove';
+        actionBtn.addEventListener('click', () => {
+          this.quoteManager.toggleFavorite(id); // removes from storage + _favorites Set
+          // Do NOT remove from sessionFavorites — row stays visible for refavoriting
+          this.renderFavoritesList();
+          this.updateFavoritesButtonLabel();
+          this.renderFavoriteButtonState();
+        });
+      } else {
+        // + Refavorite: re-adds to storage and removes the muted state
+        actionBtn.className = 'btn-refavorite';
+        actionBtn.setAttribute('aria-label', `Refavorite "${quote.text}"`);
+        actionBtn.textContent = '+ Refavorite';
+        actionBtn.addEventListener('click', () => {
+          this.quoteManager.toggleFavorite(id); // re-adds to storage + _favorites Set
+          // sessionFavorites already contains the ID; re-render to update button state
+          this.renderFavoritesList();
+          this.updateFavoritesButtonLabel();
+          this.renderFavoriteButtonState();
+        });
+      }
 
       li.appendChild(contentDiv);
-      li.appendChild(removeBtn);
+      li.appendChild(actionBtn);
       this.elements.favoritesList.appendChild(li);
     }
   }

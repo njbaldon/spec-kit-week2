@@ -10,10 +10,10 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 **Purpose**: Project initialization, directory structure, and runtime tooling configuration.
 
-- [ ] T001 Create project directory structure for `src/` and `tests/` directories per `specs/001-quote-of-the-day/plan.md`
-- [ ] T002 Initialize project configuration with `"type": "module"` and test runner script `"test": "node --test tests/**/*.test.js"` in `package.json`
-- [ ] T003 [P] Create base HTML5 shell with viewport metadata, stylesheet link, and module script tags in `src/index.html`
-- [ ] T004 [P] Create CSS foundation with modern reset, custom properties, and typography in `src/css/styles.css`
+- [X] T001 Create project directory structure for `src/` and `tests/` directories per `specs/001-quote-of-the-day/plan.md`
+- [X] T002 Initialize project configuration with `"type": "module"` and test runner script `"test": "node --test tests/**/*.test.js"` in `package.json`
+- [X] T003 [P] Create base HTML5 shell with viewport metadata, stylesheet link, and module script tags in `src/index.html`
+- [X] T004 [P] Create CSS foundation with modern reset, custom properties, and typography in `src/css/styles.css`
 
 ---
 
@@ -23,8 +23,8 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 **⚠️ CRITICAL**: No user story work can begin until this foundational phase is complete.
 
-- [ ] T005 Create curated built-in quote dataset in `src/js/quotes.js` containing at least 15 quotes enforcing constraints verbatim: `id` (non-empty alphanumeric with dashes, unique within dataset), `text` (non-empty trimmed string, min length 5 characters), `author` (non-empty trimmed string, min length 2 characters), and optional `category`
-- [ ] T006 [P] Implement `StorageService` in `src/js/storage.js` adhering to `specs/001-quote-of-the-day/contracts/storage-contract.md` using key `qod_favorites_v1` with JSON array parsing, deduplication, and defensive fallback to an in-memory `Set` on errors
+- [X] T005 Create curated built-in quote dataset in `src/js/quotes.js` containing at least 15 quotes enforcing constraints verbatim: `id` (non-empty alphanumeric with dashes, unique within dataset), `text` (non-empty trimmed string, min length 5 characters), `author` (non-empty trimmed string, min length 2 characters), and optional `category`
+- [X] T006 [P] Implement `StorageService` in `src/js/storage.js` adhering to `specs/001-quote-of-the-day/contracts/storage-contract.md` using key `qod_favorites_v1` with JSON array parsing, deduplication, and defensive fallback to an in-memory `Set` on errors
 
 **Checkpoint**: Foundation ready — user story implementation can now proceed.
 
@@ -40,14 +40,14 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 > *Write these tests FIRST and ensure they fail before implementing the story components.*
 
-- [ ] T007 [P] [US1] Write unit test for initial quote selection and quote schema verification in `tests/unit/quote-manager.test.js`
+- [X] T007 [P] [US1] Write unit test for initial quote selection and quote schema verification in `tests/unit/quote-manager.test.js`
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement `QuoteManager` class constructor, `getCurrentQuote()`, and `getQuoteById()` in `src/js/quote-manager.js` adhering to `specs/001-quote-of-the-day/contracts/quote-service-contract.md` to select and return an initial random quote
-- [ ] T009 [P] [US1] Add semantic quote card elements `#quote-card`, `#quote-text` (`<blockquote>`), and `#quote-author` (`<cite>`) with `aria-live="polite"` in `src/index.html`
-- [ ] T010 [P] [US1] Style quote card container, typography, and responsive spacing in `src/css/styles.css`
-- [ ] T011 [US1] Wire application startup in `src/js/app.js` to instantiate `QuoteManager` and render initial quote to `#quote-text` and `#quote-author` on page load
+- [X] T008 [US1] Implement `QuoteManager` class constructor, `getCurrentQuote()`, and `getQuoteById()` in `src/js/quote-manager.js` adhering to `specs/001-quote-of-the-day/contracts/quote-service-contract.md` to select and return an initial random quote
+- [X] T009 [P] [US1] Add semantic quote card elements `#quote-card`, `#quote-text` (`<blockquote>`), and `#quote-author` (`<cite>`) with `aria-live="polite"` in `src/index.html`
+- [X] T010 [P] [US1] Style quote card container, typography, and responsive spacing in `src/css/styles.css`
+- [X] T011 [US1] Wire application startup in `src/js/app.js` to instantiate `QuoteManager` and render initial quote to `#quote-text` and `#quote-author` on page load
 
 **Checkpoint**: User Story 1 (MVP) is fully functional and independently testable.
 
@@ -61,14 +61,14 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T012 [P] [US2] Write unit test in `tests/unit/quote-manager.test.js` verifying `getRandomQuote()` avoids immediate repeat when collection length $N \ge 2$ and handles $N \le 1$
+- [X] T012 [P] [US2] Write unit test in `tests/unit/quote-manager.test.js` verifying `getRandomQuote()` avoids immediate repeat when collection length $N \ge 2$ and handles $N \le 1$
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Implement $O(1)$ non-repeating random selection algorithm in `getRandomQuote()` in `src/js/quote-manager.js`
-- [ ] T014 [P] [US2] Add `#btn-new-quote` button with `aria-label="Show new random quote"` in `src/index.html`
-- [ ] T015 [P] [US2] Style `#btn-new-quote` button layout, hover, focus, and active states in `src/css/styles.css`
-- [ ] T016 [US2] Bind click event listener on `#btn-new-quote` to invoke `getRandomQuote()` and update DOM in `src/js/app.js`
+- [X] T013 [US2] Implement $O(1)$ non-repeating random selection algorithm in `getRandomQuote()` in `src/js/quote-manager.js`
+- [X] T014 [P] [US2] Add `#btn-new-quote` button with `aria-label="Show new random quote"` in `src/index.html`
+- [X] T015 [P] [US2] Style `#btn-new-quote` button layout, hover, focus, and active states in `src/css/styles.css`
+- [X] T016 [US2] Bind click event listener on `#btn-new-quote` to invoke `getRandomQuote()` and update DOM in `src/js/app.js`
 
 **Checkpoint**: User Stories 1 and 2 work independently and seamlessly together.
 
@@ -82,16 +82,16 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T017 [P] [US3] Write unit tests for `StorageService` in `tests/unit/storage.test.js` verifying save, read, deduplication, JSON corruption handling, and in-memory fallback
-- [ ] T018 [P] [US3] Write unit tests for `toggleFavorite(quoteId)` and `isFavorited(quoteId)` in `tests/unit/quote-manager.test.js`
+- [X] T017 [P] [US3] Write unit tests for `StorageService` in `tests/unit/storage.test.js` verifying save, read, deduplication, JSON corruption handling, and in-memory fallback
+- [X] T018 [P] [US3] Write unit tests for `toggleFavorite(quoteId)` and `isFavorited(quoteId)` in `tests/unit/quote-manager.test.js`
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Implement `toggleFavorite(quoteId)` and `isFavorited(quoteId)` in `src/js/quote-manager.js` integrating with `StorageService`
-- [ ] T020 [P] [US3] Add `#btn-favorite` with `aria-pressed="false"`, `aria-label="Toggle favorite"`, and `#storage-warning` alert container in `src/index.html`
-- [ ] T021 [P] [US3] Add styling for `#btn-favorite`, `.is-favorited` active state, and `#storage-warning` alert banner in `src/css/styles.css`
-- [ ] T022 [US3] Wire `#btn-favorite` click handling and storage error alerts to synchronize UI state in `src/js/app.js`
-- [ ] T023 [US3] Write end-to-end integration test in `tests/integration/app-flow.test.js` verifying quote navigation, favoriting, and persistent reload flow
+- [X] T019 [US3] Implement `toggleFavorite(quoteId)` and `isFavorited(quoteId)` in `src/js/quote-manager.js` integrating with `StorageService`
+- [X] T020 [P] [US3] Add `#btn-favorite` with `aria-pressed="false"`, `aria-label="Toggle favorite"`, and `#storage-warning` alert container in `src/index.html`
+- [X] T021 [P] [US3] Add styling for `#btn-favorite`, `.is-favorited` active state, and `#storage-warning` alert banner in `src/css/styles.css`
+- [X] T022 [US3] Wire `#btn-favorite` click handling and storage error alerts to synchronize UI state in `src/js/app.js`
+- [X] T023 [US3] Write end-to-end integration test in `tests/integration/app-flow.test.js` verifying quote navigation, favoriting, and persistent reload flow
 
 **Checkpoint**: User Stories 1, 2, and 3 are functional with persistent state.
 
@@ -105,15 +105,15 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T024 [P] [US4] Write unit test for `getFavoriteQuotes()`, `getQuoteById()`, and empty state handling in `tests/unit/quote-manager.test.js`
+- [X] T024 [P] [US4] Write unit test for `getQuoteById()` in `tests/unit/quote-manager.test.js` verifying: returns correct `Quote` object for a valid ID, returns `null` for an unknown ID, and returns `null` when called on an empty collection
 
 ### Implementation for User Story 4
 
-- [ ] T025 [US4] Implement `getQuoteById()` and `getFavoriteQuotes()` in `src/js/quote-manager.js` returning full `Quote` objects matching stored favorite IDs
-- [ ] T026 [P] [US4] Add `#btn-view-favorites`, `#favorites-container` with `aria-label="Saved Favorite Quotes"`, and `#favorites-list` in `src/index.html`
-- [ ] T027 [P] [US4] Style `#favorites-container`, list items, `.is-unfavorited` muted style, `.btn-refavorite` button, and `.is-hidden` utility in `src/css/styles.css`
-- [ ] T028 [US4] Implement in-session retention in `src/js/app.js` maintaining `sessionFavorites` so unfavorited list items remain visible with "+ Refavorite" until reload
-- [ ] T029 [US4] Add integration test in `tests/integration/app-flow.test.js` verifying in-session favorite retention, refavoriting, and reload purging
+- [X] T025 [US4] Add `getQuoteById(id)` method to `src/js/quote-manager.js` that returns the matching `Quote` object from `this._quotes` or `null` if no match is found
+- [X] T026 [P] [US4] Verify `#btn-view-favorites`, `#favorites-container` with `aria-label="Saved Favorite Quotes"`, and `#favorites-list` are present in `src/index.html` (already added in T020; confirm and mark complete)
+- [X] T027 [P] [US4] Add `.is-unfavorited` muted styling and `.btn-refavorite` button styles to `src/css/styles.css` for in-session retained rows
+- [X] T028 [US4] Refactor `src/js/app.js` to implement in-session retention: add `this.sessionFavorites` Set initialized from storage on construction; update `renderFavoritesList()` to iterate `sessionFavorites`, rendering each item with "✕ Remove" (if still favorited) or "+ Refavorite" (if unfavorited this session), applying `.is-unfavorited` class; update `handleToggleFavorite()` to add newly favorited quote IDs to `sessionFavorites`
+- [X] T029 [US4] Add integration test in `tests/integration/app-flow.test.js` verifying: (a) after unfavoriting from the list, `quoteManager.isFavorited(id)` returns `false` but the session set still contains the ID; (b) a new session (simulating reload) does NOT include the unfavorited ID in storage
 
 **Checkpoint**: All user stories (P1 through P4) are fully functional and independently testable with in-session refavoriting.
 
@@ -123,9 +123,9 @@ This document contains the actionable, dependency-ordered task breakdown for imp
 
 **Purpose**: Verification, test suite pass, documentation, and final validation.
 
-- [ ] T030 [P] Validate end-to-end manual walkthrough scenarios per `specs/001-quote-of-the-day/quickstart.md`
-- [ ] T031 Run full automated test suite via `node --test tests/**/*.test.js` and verify 100% pass rate with zero failures
-- [ ] T032 [P] Update user documentation and execution instructions in `README.md`
+- [X] T030 [P] Validate end-to-end manual walkthrough scenarios per `specs/001-quote-of-the-day/quickstart.md`
+- [X] T031 Run full automated test suite via `node --test tests/**/*.test.js` and verify 100% pass rate with zero failures
+- [X] T032 [P] Update user documentation and execution instructions in `README.md` to describe in-session refavoriting behavior
 
 ---
 
@@ -172,9 +172,9 @@ Task T010: "Style quote card container in src/css/styles.css"
 ### Parallel Example: User Story 4
 ```bash
 # Author quote query tests and styling in parallel:
-Task T024: "Write unit test for getFavoriteQuotes and getQuoteById in tests/unit/quote-manager.test.js"
-Task T026: "Add #btn-view-favorites and #favorites-list in src/index.html"
-Task T027: "Style #favorites-container and .btn-refavorite in src/css/styles.css"
+Task T024: "Write unit test for getQuoteById() in tests/unit/quote-manager.test.js"
+Task T026: "Verify #btn-view-favorites and #favorites-list are present in src/index.html"
+Task T027: "Add .is-unfavorited and .btn-refavorite styles in src/css/styles.css"
 ```
 
 ---
