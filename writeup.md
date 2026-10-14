@@ -1,11 +1,15 @@
-## Here are the skills I ran with the prompts:
+## Here are the skills and prompts I ran efore refining the spec:
 
-Before refining the spec
 /speckit-constitution Create principles focused on code quality, testing, and maintainability.
+
 /speckit-specify A quote-of-the-day page: one random quote from a built-in list, a "New quote" button, and favoriting that persists across reloads.
+
 /speckit-plan Use plain HTML/CSS/JavaScript, no backend; persist favorites in localStorage.
+
 /speckit-tasks
+
 /speckit-implement
+
 /speckit-converge
 
 It converged, but I then refined the spec. I updated how the removing from favorites list should work. I specified that when the user removes a quote from their favorites, it should be removed from the list but still appear there in case the user wants to refavorite it, until the page is reloaded.
@@ -15,11 +19,17 @@ It converged, but I then refined the spec. I updated how the removing from favor
 /speckit-plan Use plain HTML/CSS/JavaScript, no backend; persist favorites in localStorage. I updated the spec to say that when you unfavorite something from the favorites list, while it is removed from the favorites list it should still be shown on the page list (until reloaded) so the user can refavorite it
 
 /speckit-tasks
+
 /speckit-implement
+
 /speckit-converge
+
 /speckit-implement
+
 /speckit-converge
+
 /speckit-implement
+
 /speckit-converge
 
 It converged!
