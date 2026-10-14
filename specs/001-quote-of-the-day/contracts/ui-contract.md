@@ -31,7 +31,10 @@ This contract defines the DOM elements, CSS hook classes, semantic roles, and ac
   - Attribute: `aria-pressed="false"`.
 - **View Toggle**:
   - Hidden class: `.is-hidden` toggled on `#quote-card` or `#favorites-container` based on `activeView`.
-  - Favorites button label updates or toggles between "View Favorites (N)" and "Back to Quotes".
+  - Favorites button label updates or toggles between "View Favorites (N)" and "Back to Quote".
+- **Favorites List Item States**:
+  - Active: Item in `#favorites-list` contains button `.btn-remove-fav` with text `✕ Remove`.
+  - In-Session Unfavorited: Item receives `.is-unfavorited` class (muted presentation); button switches to `.btn-refavorite` with text `+ Refavorite` allowing immediate reversal. Row remains in list until page reload.
 
 ---
 

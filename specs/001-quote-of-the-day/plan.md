@@ -6,7 +6,7 @@
 
 ## Summary
 
-Build a lightweight, zero-dependency client-side single-page application that presents an inspirational quote of the day with author attribution from a built-in curated collection. Users can cycle through random quotes without immediate repetition, toggle favorite status on any quote with persistent storage in browser `localStorage`, and view their saved favorites list. Built with pure semantic HTML5, modern CSS3, and modular ES6 JavaScript, verified with automated Node.js test suites.
+Build a lightweight, zero-dependency client-side single-page application that presents an inspirational quote of the day with author attribution from a built-in curated collection. Users can cycle through random quotes without immediate repetition, toggle favorite status on any quote with persistent storage in browser `localStorage`, and view their saved favorites list. When an item is unfavorited from the favorites list, it is removed from persistent storage but remains displayed in the list during the active session (with a refavorite action) so accidental removals can be undone immediately before a page reload. Built with pure semantic HTML5, modern CSS3, and modular ES6 JavaScript, verified with automated Node.js test suites.
 
 ## Technical Context
 

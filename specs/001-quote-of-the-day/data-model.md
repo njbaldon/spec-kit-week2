@@ -59,7 +59,8 @@ interface AppState {
   quotes: Quote[];                 // Full immutable collection of quotes
   currentQuote: Quote | null;      // Currently active quote
   currentIndex: number;            // Current index in quotes array (-1 if empty)
-  favorites: Set<string>;          // Set of favorited quote IDs
+  favorites: Set<string>;          // Set of actively favorited quote IDs (persisted)
+  sessionFavorites: Set<string>;   // Set of quote IDs displayed in favorites list for this session
   isStorageAvailable: boolean;     // False if localStorage is restricted/disabled
   activeView: 'single' | 'favorites'; // Active UI view mode
 }
@@ -74,6 +75,7 @@ interface AppState {
     │
     ▼
 [State: INIT] ──► Read favorites from StorageService
+    │         ──► Hydrate favorites Set and sessionFavorites Set
     │         ──► Pick initial random quote
     │         ──► Render initial quote view
     ▼
@@ -81,15 +83,29 @@ interface AppState {
     │
     ├──► Action: NEW_QUOTE ──► Pick new non-repeating index ──► Update currentQuote & UI
     │
-    ├──► Action: TOGGLE_FAVORITE ──► Add/Remove from favorites Set
-    │                                ──► Persist to StorageService
-    │                                ──► Update Favorite Button UI
+    ├──► Action: TOGGLE_FAVORITE (from Quote Card)
+    │        ├──► Add/Remove from favorites Set and sessionFavorites Set
+    │        ├──► Persist changes to StorageService
+    │        └──► Update Favorite Button UI
     │
     └──► Action: TOGGLE_VIEW ──► Switch activeView ('single' <-> 'favorites')
                                  ──► Render Favorites List or Return to Quote
+                                      │
+                                      ▼
+                           [In Favorites View]
+                                      │
+                                      ├──► Action: UNFAVORITE_FROM_LIST
+                                      │        ├──► Remove from favorites Set & StorageService
+                                      │        ├──► RETAIN in sessionFavorites Set
+                                      │        └──► Update row button to "Refavorite"
+                                      │
+                                      └──► Action: REFAVORITE_FROM_LIST
+                                               ├──► Add back to favorites Set & StorageService
+                                               └──► Update row button back to "Remove"
 ```
 
 ### Transition Invariants
 - `currentQuote` must never be `null` after initialization as long as `quotes.length > 0`.
 - Calling `NEW_QUOTE` when `quotes.length > 1` must result in `nextIndex !== previousIndex`.
 - Toggling favorite for `quoteId` must be strictly idempotent with respect to double-clicks (state flips exactly once per user gesture).
+- When un-favoriting from the favorites list, the quote is immediately purged from persistent storage (`localStorage`), but remains in `sessionFavorites` until page reload so the user can re-favorite it. On reload, `sessionFavorites` is re-initialized strictly from `localStorage`, removing any unfavorited quotes.

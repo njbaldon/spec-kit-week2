@@ -42,6 +42,11 @@ export interface IQuoteManager {
   getFavoriteQuotes(): Quote[];
 
   /**
+   * Returns a Quote object matching the specified ID, or null if not found.
+   */
+  getQuoteById(quoteId: string): Quote | null;
+
+  /**
    * Returns the count of total quotes in the library.
    */
   getTotalQuoteCount(): number;

@@ -85,3 +85,23 @@ Test suites:
 ### Alternatives Considered
 - **Jest / Vitest**: Rejected because introducing external test runners and their transpile dependencies adds unnecessary complexity for plain ES modules.
 - **Manual verification only**: Rejected because it violates Constitution Principle II.
+
+---
+
+## 5. In-Session Retention of Unfavorited Quotes in Favorites List
+
+### Decision
+When an item is unfavorited from within the favorites view:
+1. Immediately remove the quote ID from persistent storage (`window.localStorage` via `StorageService.removeFavorite()`) and from the active `QuoteManager` favorites set.
+2. In the active browser session, keep the quote row rendered in the favorites list, updating its visual state to an "unfavorited / removed" state (e.g., muted style with a `+ Refavorite` button) rather than immediately deleting the DOM element.
+3. If the user clicks `+ Refavorite`, immediately re-add the quote ID to persistent storage and toggle the button back to `✕ Remove`.
+4. Upon page reload or new session start, the favorites list is hydrated purely from `localStorage`, naturally purging any quotes that were left in the unfavorited state.
+
+### Rationale
+- Satisfies updated User Story 4 (Acceptance Criterion 3): accidental unfavorites can be easily undone during the session without re-searching the quote library.
+- Avoids disruptive DOM layout shifts when clicking remove.
+- Preserves clean storage semantics: no "soft-delete" records or deletion timestamps are written to `localStorage`. Only actively favorited IDs exist in persistence.
+
+### Alternatives Considered
+- **Immediate DOM removal**: Rejected because user explicitly specified that quotes remain visible in the list until reload to allow refavoriting.
+- **Persistent soft-delete flags in localStorage**: Rejected as over-engineered; in-session memory tracking cleanly resolves the requirement without persistent schema migrations or garbage collection.

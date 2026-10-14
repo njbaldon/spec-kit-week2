@@ -68,7 +68,7 @@ A user can view an overview of all quotes they have favorited, allowing them to 
 
 1. **Given** the user has favorited one or more quotes, **When** the user opens the favorites view, **Then** all currently favorited quotes are listed with their quotation text and author.
 2. **Given** the user has not favorited any quotes, **When** the user opens the favorites view, **Then** a friendly empty state message is shown explaining how to favorite quotes.
-3. **Given** a quote is displayed in the favorites list, **When** the user un-favorites it from the list, **Then** the quote is removed from the favorites list and its persistent favorite state is cleared.
+3. **Given** a quote is displayed in the favorites list, **When** the user un-favorites it from the list, **Then** the quote is un-favorited, but it remains there in the list (until reload) so if the user accidentally clicked it, they can refavorite it. The quote is technically removed from the favorites list and on reload its persistent favorite state is cleared.
 
 ---
 

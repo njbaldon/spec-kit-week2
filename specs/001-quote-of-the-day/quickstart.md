@@ -73,8 +73,13 @@ Follow these steps to validate the user stories described in [spec.md](./spec.md
 4. Click "New quote" until the favorited quote appears again (or open Favorites view).
 5. **Verify**: The quote retains its favorited state after page reload.
 
-### Scenario D: View Favorites List (User Story 4 - P4)
+### Scenario D: View Favorites List & In-Session Refavoriting (User Story 4 - P4)
 1. Click the **"View Favorites"** button (#btn-view-favorites).
 2. **Verify**: The favorites list displays all quotes that have been marked as favorites.
-3. Click the unfavorite action for an item in the favorites list.
-4. **Verify**: The item is removed from the list and storage is updated.
+3. Click the unfavorite action ("✕ Remove") for an item in the favorites list.
+4. **Verify**: The quote is un-favorited (removed from `localStorage`), BUT remains displayed in the favorites list with a "+ Refavorite" button.
+5. Click "+ Refavorite" on that item.
+   **Verify**: The quote is re-added to favorites and the button toggles back to "✕ Remove".
+6. Click "✕ Remove" again, then reload the page (`Cmd+R` / `F5`).
+7. Open "View Favorites".
+   **Verify**: The quote that was left un-favorited is now completely gone from the favorites list upon reload.
