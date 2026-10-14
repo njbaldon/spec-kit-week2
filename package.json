@@ -4,7 +4,8 @@
   "description": "Quote of the day single page web application with favoriting and localStorage persistence",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/**/*.test.js"
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint --max-warnings=0 ."
   },
   "keywords": [
     "quotes",
@@ -12,5 +13,9 @@
     "spec-kit"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1"
+  }
 }

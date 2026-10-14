@@ -163,3 +163,22 @@ test('QuoteManager - User Story 4: getQuoteById() lookup', async (t) => {
     assert.equal(result, null, 'Should return null when collection is empty');
   });
 });
+
+test('QuoteManager - stored favorites sanitization (data-model §1.2)', async (t) => {
+  await t.test('discards stored IDs that match no quote and prunes them from storage', () => {
+    const backend = new Map();
+    const mockStorage = {
+      getItem: (k) => (backend.has(k) ? backend.get(k) : null),
+      setItem: (k, v) => backend.set(k, String(v)),
+      removeItem: (k) => backend.delete(k)
+    };
+    mockStorage.setItem(StorageService.STORAGE_KEY, JSON.stringify(['quote-001', 'retired-id']));
+
+    const manager = new QuoteManager(sampleQuotes, new StorageService(mockStorage));
+
+    assert.equal(manager.isFavorited('retired-id'), false);
+    assert.equal(manager.isFavorited('quote-001'), true);
+    assert.deepEqual(manager.getFavoriteQuotes().map((q) => q.id), ['quote-001']);
+    assert.deepEqual(JSON.parse(mockStorage.getItem(StorageService.STORAGE_KEY)), ['quote-001']);
+  });
+});

@@ -12,13 +12,32 @@ export class QuoteManager {
     this._storage = storageService;
     this._currentIndex = -1;
     this._currentQuote = null;
-    this._favorites = new Set(this._storage ? this._storage.getFavorites() : []);
+    this._favorites = this._loadKnownFavorites();
 
     if (this._quotes.length > 0) {
       // Pick initial random quote on initialization
       this._currentIndex = Math.floor(Math.random() * this._quotes.length);
       this._currentQuote = this._quotes[this._currentIndex];
     }
+  }
+
+  /**
+   * Reads stored favorite IDs, keeping only those that match a quote in the collection.
+   * Stale IDs (e.g. from a quote retired from the dataset) are pruned from storage too;
+   * otherwise they would inflate favorite counts while never rendering in the list.
+   * @returns {Set<string>}
+   */
+  _loadKnownFavorites() {
+    if (!this._storage) return new Set();
+
+    const stored = this._storage.getFavorites();
+    const knownIds = new Set(this._quotes.map((q) => q.id));
+    const known = stored.filter((id) => knownIds.has(id));
+
+    if (known.length !== stored.length) {
+      this._storage.saveFavorites(known);
+    }
+    return new Set(known);
   }
 
   /**
@@ -35,14 +54,6 @@ export class QuoteManager {
    */
   getCurrentQuote() {
     return this._currentQuote;
-  }
-
-  /**
-   * Returns the index of the currently active quote.
-   * @returns {number}
-   */
-  getCurrentIndex() {
-    return this._currentIndex;
   }
 
   /**

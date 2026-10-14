@@ -6,31 +6,37 @@ import { QuoteManager } from './quote-manager.js';
  * AppController coordinates DOM elements and user gestures with QuoteManager and StorageService.
  */
 export class AppController {
-  constructor() {
-    this.storage = new StorageService();
+  /**
+   * @param {object} [options] Dependencies, injectable so the controller can be tested without a browser.
+   * @param {Document} [options.doc] Document to query and create elements in.
+   * @param {StorageService} [options.storage] Favorites persistence service.
+   */
+  constructor({ doc = document, storage = new StorageService() } = {}) {
+    this.doc = doc;
+    this.storage = storage;
     this.quoteManager = new QuoteManager(quotes, this.storage);
 
     /**
      * sessionFavorites tracks every quote ID shown in the favorites panel for the current
-     * session. It is initialized from storage (currently-favorited IDs) and is grown whenever
-     * the user favorites a new quote. IDs are NEVER removed from this Set during the session —
-     * they only disappear on the next page load — which is what keeps unfavorited rows visible
-     * in the panel so the user can refavorite accidental removals.
+     * session. It is initialized from the currently-favorited quotes and grows whenever the
+     * user favorites a quote. Rows removed from the favorites list stay in this Set until the
+     * next page load, which keeps them visible so the user can refavorite accidental removals.
+     * Unfavoriting from the quote card is not a list removal, so it drops the row instead.
      * @type {Set<string>}
      */
-    this.sessionFavorites = new Set(this.storage.getFavorites());
+    this.sessionFavorites = new Set(this.quoteManager.getFavoriteQuotes().map((q) => q.id));
 
     // Cache DOM references
     this.elements = {
-      quoteCard: document.getElementById('quote-card'),
-      quoteText: document.getElementById('quote-text'),
-      quoteAuthor: document.getElementById('quote-author'),
-      btnNewQuote: document.getElementById('btn-new-quote'),
-      btnFavorite: document.getElementById('btn-favorite'),
-      btnViewFavorites: document.getElementById('btn-view-favorites'),
-      favoritesContainer: document.getElementById('favorites-container'),
-      favoritesList: document.getElementById('favorites-list'),
-      storageWarning: document.getElementById('storage-warning')
+      quoteCard: doc.getElementById('quote-card'),
+      quoteText: doc.getElementById('quote-text'),
+      quoteAuthor: doc.getElementById('quote-author'),
+      btnNewQuote: doc.getElementById('btn-new-quote'),
+      btnFavorite: doc.getElementById('btn-favorite'),
+      btnViewFavorites: doc.getElementById('btn-view-favorites'),
+      favoritesContainer: doc.getElementById('favorites-container'),
+      favoritesList: doc.getElementById('favorites-list'),
+      storageWarning: doc.getElementById('storage-warning')
     };
 
     this.isFavoritesViewOpen = false;
@@ -72,16 +78,19 @@ export class AppController {
 
   /**
    * Toggles the favorite status for the current quote and synchronizes UI.
-   * When a quote is newly favorited, its ID is added to sessionFavorites so it
-   * appears in the favorites panel for the rest of this session.
+   * Favoriting adds the quote to sessionFavorites; unfavoriting here removes it, because
+   * in-session retention only applies to removals made from the favorites list.
    */
   handleToggleFavorite() {
     const current = this.quoteManager.getCurrentQuote();
     const isNowFavorited = this.quoteManager.toggleFavorite();
 
-    if (isNowFavorited && current) {
-      // Add to session set so it shows up in (or stays in) the favorites panel
-      this.sessionFavorites.add(current.id);
+    if (current) {
+      if (isNowFavorited) {
+        this.sessionFavorites.add(current.id);
+      } else {
+        this.sessionFavorites.delete(current.id);
+      }
     }
 
     this.checkStorageWarning();
@@ -108,14 +117,14 @@ export class AppController {
   }
 
   /**
-   * Updates favorites button label with count of truly-persisted favorites.
+   * Updates favorites button label with count of currently-favorited quotes.
    */
   updateFavoritesButtonLabel() {
     if (!this.elements.btnViewFavorites) return;
     if (this.isFavoritesViewOpen) {
       this.elements.btnViewFavorites.textContent = 'Back to Quote';
     } else {
-      const count = this.storage.getFavorites().length;
+      const count = this.quoteManager.getFavoriteQuotes().length;
       this.elements.btnViewFavorites.textContent = `View Favorites (${count})`;
     }
   }
@@ -171,7 +180,7 @@ export class AppController {
     this.elements.favoritesList.innerHTML = '';
 
     if (this.sessionFavorites.size === 0) {
-      const emptyLi = document.createElement('li');
+      const emptyLi = this.doc.createElement('li');
       emptyLi.className = 'favorites-empty';
       emptyLi.textContent = 'You have not favorited any quotes yet. Click the heart icon on any quote to save it!';
       this.elements.favoritesList.appendChild(emptyLi);
@@ -184,24 +193,24 @@ export class AppController {
 
       const isStillFavorited = this.quoteManager.isFavorited(id);
 
-      const li = document.createElement('li');
+      const li = this.doc.createElement('li');
       li.className = 'favorite-item' + (isStillFavorited ? '' : ' is-unfavorited');
 
-      const contentDiv = document.createElement('div');
+      const contentDiv = this.doc.createElement('div');
       contentDiv.className = 'favorite-item-content';
 
-      const quoteP = document.createElement('p');
+      const quoteP = this.doc.createElement('p');
       quoteP.className = 'favorite-item-text';
       quoteP.textContent = `"${quote.text}"`;
 
-      const authorSpan = document.createElement('span');
+      const authorSpan = this.doc.createElement('span');
       authorSpan.className = 'favorite-item-author';
       authorSpan.textContent = `— ${quote.author}`;
 
       contentDiv.appendChild(quoteP);
       contentDiv.appendChild(authorSpan);
 
-      const actionBtn = document.createElement('button');
+      const actionBtn = this.doc.createElement('button');
       actionBtn.type = 'button';
 
       if (isStillFavorited) {
@@ -212,6 +221,7 @@ export class AppController {
         actionBtn.addEventListener('click', () => {
           this.quoteManager.toggleFavorite(id); // removes from storage + _favorites Set
           // Do NOT remove from sessionFavorites — row stays visible for refavoriting
+          this.checkStorageWarning();
           this.renderFavoritesList();
           this.updateFavoritesButtonLabel();
           this.renderFavoriteButtonState();
@@ -224,6 +234,7 @@ export class AppController {
         actionBtn.addEventListener('click', () => {
           this.quoteManager.toggleFavorite(id); // re-adds to storage + _favorites Set
           // sessionFavorites already contains the ID; re-render to update button state
+          this.checkStorageWarning();
           this.renderFavoritesList();
           this.updateFavoritesButtonLabel();
           this.renderFavoriteButtonState();

@@ -15,22 +15,29 @@ This guide provides end-to-end instructions for running the application, executi
 
 ## 2. Running Automated Tests
 
-Run the native test suite using Node.js:
+Install the ESLint dev dependency once, then run the same quality gates CI runs (`.github/workflows/ci.yml`):
 
 ```bash
-# Execute unit and integration tests
-node --test tests/**/*.test.js
+npm install
+npm run lint   # ESLint, zero warnings allowed
+npm test       # node --test tests/**/*.test.js
 ```
 
-### Expected Output:
+### Expected Output (`npm test`):
 ```text
-✔ quote-manager > initial load selects a valid quote
-✔ quote-manager > getRandomQuote never immediately repeats current quote
-✔ quote-manager > toggleFavorite persists quote ID and updates state
-✔ storage > handles localStorage writes, reads, and corruption fallbacks
-✔ integration > full flow from random quote to persistence reload
-ℹ tests 5
-ℹ pass 5
+✔ AppController - quote card and favorite button (US1, US3)
+✔ AppController - favorites view (US4)
+✔ AppController - storage failing mid-session from the favorites list (Edge Case: Persistence Storage Unavailable)
+✔ Integration: End-to-End Quote Browsing & LocalStorage Persistence Across Reloads
+✔ QuoteManager - User Story 1: Initial quote selection on load
+✔ QuoteManager - User Story 2: Non-repeating random quote selection
+✔ QuoteManager - User Story 3: Favorite and Unfavorite Toggling
+✔ QuoteManager - User Story 4: View and retrieve saved favorite quotes
+✔ QuoteManager - User Story 4: getQuoteById() lookup
+✔ QuoteManager - stored favorites sanitization (data-model §1.2)
+✔ StorageService - Persistence & Fallback
+ℹ tests 42
+ℹ pass 42
 ℹ fail 0
 ```
 

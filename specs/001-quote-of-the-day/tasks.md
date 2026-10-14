@@ -193,3 +193,21 @@ Task T027: "Add .is-unfavorited and .btn-refavorite styles in src/css/styles.css
 3. Add US3 → Personalization (Favorite toggling and `localStorage` persistence).
 4. Add US4 → Collection review & In-session refavoriting (Favorites list with retention of unfavorited items until reload).
 5. Polish → Verification against `quickstart.md`, 100% test pass with `node --test`.
+
+---
+
+## Phase 8: Convergence
+
+- [X] T033 CRITICAL: Add a CI workflow in `.github/workflows/ci.yml` that runs the lint/static-analysis check and `npm test` on every push and pull request to `main` per Constitution V (missing)
+- [X] T034 CRITICAL: Add a zero-warning static analysis gate (e.g. ESLint as a devDependency with an `npm run lint` script and a config covering `src/js/` and `tests/`) and fix any reported issues per Constitution I (missing)
+- [X] T035 CRITICAL: Add automated tests that exercise `AppController` in `src/js/app.js` directly (minimal DOM double or injectable element map) covering in-session retention after "✕ Remove", "+ Refavorite" restoring persistence, `.is-unfavorited`/`aria-pressed` state, the empty-state message, and view toggling; replace the hand-simulated `sessionFavorites` Set in `tests/integration/app-flow.test.js` per Constitution II / US4/AC3 (partial)
+- [X] T036 Discard stored favorite IDs that do not match a known quote ID on load, so the "View Favorites (N)" count in `src/js/app.js` and the favorites list agree and the empty-state message still shows when only stale IDs exist, with a regression test, per data-model §1.2 / US4/AC2 (partial)
+- [X] T037 Review whether quotes unfavorited from the main quote card (`handleToggleFavorite()` in `src/js/app.js`) should be retained as "+ Refavorite" rows in the favorites list (spec US4/AC3 only specifies retention for removals made from the list); document the decision or restrict retention to list removals per US4/AC3 (unrequested)
+- [X] T038 Remove or justify `getCurrentIndex()` in `src/js/quote-manager.js`, which is not in `contracts/quote-service-contract.md` and is unused, per Constitution I / quote-service contract (unrequested)
+
+---
+
+## Phase 9: Convergence
+
+- [X] T039 Show `#storage-warning` when a "✕ Remove" or "+ Refavorite" action in the favorites list fails to persist (call `checkStorageWarning()` from both list handlers in `src/js/app.js`, as `handleToggleFavorite()` already does), with a test in `tests/integration/app-controller.test.js` using a backend that starts failing mid-session, per spec Edge Case "Persistence Storage Unavailable" (partial)
+- [X] T040 Update `specs/001-quote-of-the-day/quickstart.md` §2 to run `npm run lint` and `npm test` and replace the stale 5-test expected output, per Constitution Quality Gates (Documentation) / plan: testing decision (partial)

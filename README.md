@@ -22,13 +22,15 @@ Built with plain semantic HTML5, modern vanilla CSS3, and native ES6 JavaScript 
 3. Changed your mind? Click **+ Refavorite** to restore the quote to your permanent favorites.
 4. On the next page reload, any rows left in the "removed" state will no longer appear.
 
+Retention applies only to removals made from the favorites list. Unfavoriting the quote shown on the main card removes it from the list right away.
+
 ---
 
 ## Getting Started
 
 ### Prerequisites
 - Any modern web browser (Chrome, Firefox, Safari, Edge).
-- Node.js (v20+ or v22+) for running automated test suites.
+- Node.js (v20+ or v22+) for running automated test suites and lint (`npm install` once to fetch the ESLint dev dependency).
 
 ### Running the Application
 
@@ -48,26 +50,32 @@ Open your browser to `http://localhost:8080`.
 
 ## Running Automated Tests
 
-The project includes unit and integration tests using Node.js's built-in test runner (`node:test`) and assertion library (`node:assert`). No third-party dependencies are required.
+The project includes unit and integration tests using Node.js's built-in test runner (`node:test`) and assertion library (`node:assert`). `AppController` is tested against a small DOM test double (`tests/helpers/fake-dom.js`), so no browser is needed.
 
 ```bash
+npm run lint   # ESLint, zero warnings allowed
 npm test
 ```
 
 Expected output:
 ```text
+✔ AppController - quote card and favorite button (US1, US3)
+✔ AppController - favorites view (US4)
+✔ AppController - storage failing mid-session from the favorites list (Edge Case: Persistence Storage Unavailable)
 ✔ Integration: End-to-End Quote Browsing & LocalStorage Persistence Across Reloads
-✔ Integration: In-Session Refavoriting — unfavorited row is retained until reload
 ✔ QuoteManager - User Story 1: Initial quote selection on load
 ✔ QuoteManager - User Story 2: Non-repeating random quote selection
 ✔ QuoteManager - User Story 3: Favorite and Unfavorite Toggling
 ✔ QuoteManager - User Story 4: View and retrieve saved favorite quotes
 ✔ QuoteManager - User Story 4: getQuoteById() lookup
+✔ QuoteManager - stored favorites sanitization (data-model §1.2)
 ✔ StorageService - Persistence & Fallback
-ℹ tests 26
-ℹ pass 26
+ℹ tests 42
+ℹ pass 42
 ℹ fail 0
 ```
+
+Both checks run in CI on every push and pull request to `main` (`.github/workflows/ci.yml`).
 
 ---
 
@@ -87,8 +95,13 @@ Expected output:
 │   ├── unit/
 │   │   ├── quote-manager.test.js  # Tests for selection, repetition, favorites & getQuoteById()
 │   │   └── storage.test.js        # Tests for storage, deduplication & fallback
-│   └── integration/
-│       └── app-flow.test.js       # Multi-session reload + in-session refavoriting simulation
+│   ├── integration/
+│   │   ├── app-flow.test.js       # Multi-session reload persistence flow
+│   │   └── app-controller.test.js # AppController: favorites view, in-session refavoriting, empty state
+│   └── helpers/
+│       └── fake-dom.js            # Minimal DOM and localStorage test doubles
+├── .github/workflows/ci.yml       # CI: lint + tests
+├── eslint.config.js
 ├── specs/001-quote-of-the-day/    # Feature specifications, plans, and tasks
 ├── package.json
 └── README.md
