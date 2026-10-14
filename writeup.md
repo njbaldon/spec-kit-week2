@@ -8,7 +8,7 @@ Before refining the spec
 /speckit-implement
 /speckit-converge
 
-It converged, but I then refined the spec.
+It converged, but I then refined the spec. I updated how the removing from favorites list should work. I specified that when the user removes a quote from their favorites, it should be removed from the list but still appear there in case the user wants to refavorite it, until the page is reloaded.
 
 ## I then ran these after refining the spec.
 
