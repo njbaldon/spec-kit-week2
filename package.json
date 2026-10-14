@@ -1,0 +1,16 @@
+{
+  "name": "spec-kit-week2-quote-of-the-day",
+  "version": "1.0.0",
+  "description": "Quote of the day single page web application with favoriting and localStorage persistence",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "quotes",
+    "vanilla-js",
+    "spec-kit"
+  ],
+  "author": "",
+  "license": "MIT"
+}
